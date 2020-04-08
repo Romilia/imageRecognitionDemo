@@ -18,30 +18,32 @@ export default class Camera extends React.Component {
 		if (this.camera) {
 
 			// Pause the camera's preview
-            // this.camera.pausePreview();
-            
-   
-
+			this.camera.pausePreview();
+			
             // Set the activity indicator
 			this.setState((previousState, props) => ({
 				loading: true
 			}));
-			
+
 			// Set options
 			const options = {
                 base64: true
             };
+
+            this.camera.resumePreview();
 			
 			// Get the base64 version of the image
 			const data = await this.camera.takePictureAsync(options)
          
 			// Get the identified image
-			this.identifyImage(data.base64);
+            this.identifyImage(data.base64);
+            
+            this.camera.resumePreview();
 		}
 	}
 
 	identifyImage(imageData){
-
+      
 		// Initialise Clarifai api
 		const Clarifai = require('clarifai');
 
@@ -50,10 +52,9 @@ export default class Camera extends React.Component {
 		});
 
 		// Identify the image
-		app.models.predict(Clarifai.GENERAL_MODEL, {base64: imageData})
-			.then((response) => this.displayAnswer(response.outputs[0].data.concepts[0].name)
-			.catch((err) => alert(err))
-		);
+		app.models.predict(Clarifai.GENERAL_MODEL, {base64: imageData}).then(response => {
+            Alert.alert('this is a', response.outputs[0].data.concepts[0].name)
+        });
 	}
 
 	displayAnswer(identifiedImage){
